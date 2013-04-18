@@ -29,6 +29,7 @@ namespace ProductStore.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Administrator")]
         public ActionResult Admin()
         {
             string apiUri = Url.HttpRouteUrl("DefaultApi", new { controller = "admin", });
