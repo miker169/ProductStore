@@ -4,17 +4,70 @@
     ViewBag.Title = "Admin";
 }
 
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript" src="@Url.Content("~/Scripts/knockout-2.2.0.js")"></script>
+    <script type="text/javascript">
+
+ function ProductsViewModel() {
+            var self = this;
+            self.products = ko.observableArray();
+
+            var baseUri = '@ViewBag.ApiUrl';
+            $.getJSON(baseUri, self.products);
+
+            self.create = function(formElement) {
+                // If the form data is valid, post the serialized form data to the WebApi
+                $(formElement).validate();
+                if ($(formElement).valid()) {
+                    $.post(baseUri, $(formElement).serialize(), null, "json")
+                        .done(function(o) {
+                            //Add the new product to the view-model
+                            self.products.push(o);
+                        });
+                }
+            };
+
+            self.update = function (product) {
+                $.ajax({ type: "PUT", url: baseUri + '/' + product.id, data: product });
+            };
+
+            self.remove = function(product) {
+                // First remove from the server, then from the view-model
+                $.ajax({ type: "DELETE", url: baseUri + '/' + product.id })
+                    .done(function() { self.products.remove(product); });
+            };
+
+            $.getJSON(baseUri, self.products);
+ }
+ 
+
+        $(document).ready(function () {
+            ko.applyBindings(new ProductsViewModel());
+        });
+    </script>
+}
+
 <div class="content">
     <div class="float-left">
-        <ul id="update-products">
+        <ul id="update-products" data-bind="foreach: products">
             <li>
-                <div><div class="item">Product ID</div><span></span></div>
-                <div><div class="item">Name</div><input type="text"/></div>
-                <div><div class="item">Price ($)</div><input type="text"/></div>
-                <div><div class="item">Actual Cost ($)</div> <input type="text"/></div>
                 <div>
-                    <input type="button" value="Update"/>
-                    <input type="button" value="Delete Item" />
+                    <div class="item">Product ID</div><span data-bind="text: $data.Id"></span>
+                </div>
+                <div>
+                    <div class="item">Name</div><input type="text" data-bind="value: $data.Name"/>
+                </div>
+                <div>
+                    <div class="item">Price ($)</div><input type="text" data-bind="value: $data.Price"/>
+                </div>
+                <div>
+                    <div class="item">Actual Cost ($)</div> <input type="text" data-bind="value: $data.ActualCost"/>
+                </div>
+                <div>
+                    <input type="button" value="Update" data-bind="click: $root.update"/>
+                    <input type="button" value="Delete Item" data-bind="click: $root.remove" />
                 </div>
             </li>
         </ul>
@@ -22,7 +75,7 @@
     
     <div class="float-right">
         <h2>Add New Product</h2>
-        <form id="product">
+        <form id="product" data-bind="submit: create">
             @Html.ValidationSummary(true)
             <fieldset>
                 <legend>Contact</legend>
@@ -34,3 +87,4 @@
         </form>
     </div>
 </div>
+
