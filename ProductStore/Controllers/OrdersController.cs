@@ -20,7 +20,8 @@ namespace ProductStore.Controllers
         // GET api/Orders
         public IEnumerable<Order> GetOrders()
         {
-            return db.Orders.Where(o => o.Customer == User.Identity.Name);
+            var a =  db.Orders.Where(o => o.Customer == User.Identity.Name);
+            return a;
         }
 
         // GET api/Orders/5
@@ -36,6 +37,7 @@ namespace ProductStore.Controllers
 
             return new OrderDTO()
                        {
+                           Id = order.Id,
                            Details = order.OrderDetails.Select(d => new OrderDTO.Detail
                                                                         {
                                                                             ProductID = d.Product.id,
@@ -43,6 +45,8 @@ namespace ProductStore.Controllers
                                                                             Price = d.Product.Price,
                                                                             Quantity = d.Quantity
                                                                         })
+                            
+
                        };
         }
 

@@ -14,5 +14,6 @@ namespace ProductStore.Models
         }
 
         public IEnumerable<Detail> Details { get; set; }
+        public int Id { get; set; }
     }
 }
